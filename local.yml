@@ -7,6 +7,7 @@
   vars_files:
     - vars/main.yml
     - vars/vault.yml
+    - automation_hub/vars/main.yml
   tasks:
 
 # The platform automation hub must be populated first

@@ -1,3 +1,4 @@
 ---
-ansible.builtin.include_role:
-  name: infra.aap_configuration.dispatch
+- name: Dispatch use case 1 configuration
+  ansible.builtin.include_role:
+    name: infra.aap_configuration.dispatch

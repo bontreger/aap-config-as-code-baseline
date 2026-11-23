@@ -6,3 +6,9 @@ vault_rh_token: "REPLACE_ME"
 
 # This is the password for source control for the configuration project
 vault_scm_password: "REPLACE_ME"
+
+# This is the password for the demonstration machine credential
+vault_example_machine_password: "REPLACE_ME"
+
+# Optional: credentials used by the example Cisco Catalyst Center credential
+vault_catalyst_password: "REPLACE_ME"

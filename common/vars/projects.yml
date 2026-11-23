@@ -1,8 +1,19 @@
 ---
 controller_projects:
+  - name: "Config As Code Project"
+    description: "Configuration Project for Ansible Automation Platform"
+    organization: "Default"
+    scm_type: "git"
+    scm_url: "{{ config_as_code_scm_url }}"
+    scm_credential: "Configuration SCM Credential"
   - name: "Example Project"
     description: "Example Project for Ansible Automation Platform"
     organization: "Default"
     scm_type: "git"
     scm_url: "https://github.com/example/repo.git"
     scm_credential: "Example SCM Credential"
+
+controller_inventories:
+  - name: "Example Inventory"
+    description: "Example inventory for the demonstration project"
+    organization: "Default"

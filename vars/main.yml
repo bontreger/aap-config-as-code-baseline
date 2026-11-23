@@ -56,10 +56,9 @@ controller_job_templates:
       spec:
         - question_name: "Use Case Tags to Apply"
           question_description: "Select the tags for the use cases you want to apply to the Ansible Automation Platform configuration"
+          variable: "config_as_code_tags"
           required: true
           type: "multiplechoice"
           choices:
             - "common"
             - "use_case_1"
-            - "use_case_2"
-            - "use_case_3"
