@@ -6,13 +6,15 @@ complete, but the platform has not yet been configured.
 
 ## How it works
 
-The repository uses two stages to solve the configuration-as-code bootstrap
-problem:
+The repository uses a short bootstrap stage followed by two configuration
+stages:
 
-1. `local.yml` runs from a machine with access to the new AAP environment. It
+1. The stage-0 collection install uses a temporary Galaxy configuration so the
+   collection needed by `local.yml` is available before private Hub setup.
+2. `local.yml` runs from a machine with access to the new AAP environment. It
    configures the Automation Hub sources, creates a local `ansible.cfg`, and
    applies the initial platform configuration.
-2. The initial configuration creates a project and job template for this
+3. The initial configuration creates a project and job template for this
    repository. That job template runs `site.yml` inside AAP for subsequent
    changes and day-2 operations.
 
@@ -30,11 +32,46 @@ Tags allow a job template or operator to run only the requested layer.
 - The `infra.aap_configuration` collection and the collections listed in
   [`collections/requirements.yml`](collections/requirements.yml).
 
-Install the required collections before running either playbook:
+### The bootstrap dependency
+
+There is an intentional chicken-and-egg step here: `local.yml` creates the
+private Automation Hub configuration, but Ansible must already have
+`infra.aap_configuration` installed before it can run `local.yml`. The
+repository therefore uses a temporary collection source for **stage 0**.
+
+The temporary source is not the private Hub that `local.yml` creates. It uses
+Red Hat Automation Hub at `console.redhat.com` and Ansible Galaxy as a
+fallback. This follows Ansible's [Galaxy server-list configuration](https://docs.ansible.com/projects/ansible/latest/collections_guide/collections_installing.html#configuring-the-ansible-galaxy-client),
+and the `infra.aap_configuration` collection is available through [Ansible
+Galaxy](https://galaxy.ansible.com/ui/collections/infra/aap_configuration/).
+
+Copy the secret-free example to a temporary location, replace
+`REPLACE_ME` with the Red Hat Automation Hub token, and protect the file:
 
 ```bash
-ansible-galaxy collection install -r collections/requirements.yml
+cp ansible-bootstrap.cfg.example /tmp/aap-bootstrap-ansible.cfg
+chmod 600 /tmp/aap-bootstrap-ansible.cfg
+$EDITOR /tmp/aap-bootstrap-ansible.cfg
 ```
+
+Then install the collections using that configuration:
+
+```bash
+ANSIBLE_CONFIG=/tmp/aap-bootstrap-ansible.cfg \
+  ansible-galaxy collection install -r collections/requirements.yml
+```
+
+The `ANSIBLE_CONFIG` prefix is temporary and applies only to that command. Do
+not copy the token into the repository's [`ansible.cfg`](ansible.cfg), and do
+not pass it directly on the command line. Ansible documents the server-list
+ordering and token settings in its [Galaxy client configuration guide](https://docs.ansible.com/projects/ansible-core/devel/collections_guide/collections_installing.html#configuring-the-ansible-galaxy-client).
+
+If policy requires all content to come from the private Hub, an AAP
+administrator must first sync the required collections—including
+`infra.aap_configuration`—into a private repository using the [AAP 2.7 remote
+repository procedure](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/administer-configure_remote_repositories_to_sync_automation_content_).
+In that case, point the temporary config at the private Hub instead of
+`console.redhat.com`.
 
 ## AAP 2.7+ URLs and tokens
 
@@ -120,6 +157,11 @@ The playbook applies, in order:
 - The initial AAP configuration, including the configuration-as-code project
   and job template.
 
+The generated repository [`ansible.cfg`](ansible.cfg) is the post-bootstrap
+configuration. It points collection installation at the private Hub gateway
+and is intended to replace the temporary configuration for later installs.
+Remove the temporary file when the bootstrap is complete.
+
 The `-i localhost,` trailing comma is important: it supplies an inline
 inventory containing `localhost`.
 
@@ -152,6 +194,7 @@ its include, tag, and survey choice to the corresponding files.
 local.yml                       Bootstrap playbook run outside AAP
 site.yml                        Configuration playbook run by AAP
 ansible.cfg                     Example local Galaxy configuration
+ansible-bootstrap.cfg.example   Temporary stage-0 Galaxy configuration
 vars/main.yml                   Shared bootstrap and project variables
 vars/vault.yml.example          Secret-value template; copy and encrypt it
 automation_hub/vars/main.yml   Automation Hub remotes and repositories
