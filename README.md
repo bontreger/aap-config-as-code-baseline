@@ -21,6 +21,8 @@ Tags allow a job template or operator to run only the requested layer.
 
 ## Prerequisites
 
+- Ansible Automation Platform 2.7 or newer. This sample assumes the AAP 2.7
+  platform-gateway API model.
 - A reachable AAP installation and an AAP API token.
 - Python and Ansible Core installed on the bootstrap machine.
 - Access to the Red Hat Automation Hub repositories used by the example.
@@ -33,6 +35,47 @@ Install the required collections before running either playbook:
 ```bash
 ansible-galaxy collection install -r collections/requirements.yml
 ```
+
+## AAP 2.7+ URLs and tokens
+
+This repository assumes AAP 2.7 or newer. In AAP 2.7, API access is routed
+through the platform gateway; direct controller, Hub, or Event-Driven Ansible
+component URLs and component-level authentication are no longer supported.
+See Red Hat's [AAP 2.7 API changes](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/upgrade-con_upgrade_api_changes_27)
+and [authentication changes](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/upgrade-con_auth_changes_27)
+for the migration details.
+
+Set `automation_hub_url` in [`vars/main.yml`](vars/main.yml) to the base URL
+of your AAP platform gateway, for example `https://gateway.example.com`.
+Use the gateway hostname supplied by your AAP administrator; do not substitute
+a separate `controller.example.com` or `hub.example.com` hostname.
+
+The values used by this sample come from these locations:
+
+- `vault_aap_token`: Create a token in the AAP platform gateway at **Access →
+  Tokens**, or create an OAuth application under **Access → Applications**.
+  The [AAP 2.7 token documentation](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/secure-ref_controller_token_session_management)
+  covers token management. Use a token belonging to a user or service account
+  with the permissions required to create the initial configuration.
+- `vault_rh_token`: Open the [Red Hat Hybrid Cloud Console Automation Hub token
+  page](https://console.redhat.com/ansible/automation-hub/token), choose
+  **Load token**, and copy the offline token. Red Hat's [AAP 2.7 Hub token
+  procedure](https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.7/secure-token_management_hub)
+  explains the same process. This token is used to sync validated and
+  certified content from `console.redhat.com`.
+- `automation_hub_url`: The AAP platform gateway URL for the private Hub/API
+  endpoint used by your installation. The AAP administrator or installation
+  inventory should provide this hostname.
+- `config_as_code_scm_url`: The clone URL for the Git repository containing
+  this project, such as `https://github.example.com/team/config-as-code.git`.
+- `scm_username` and `vault_scm_password`: The SCM username and a repository
+  access token/password that can read the configuration repository. Store the
+  secret only in the encrypted vault file.
+
+The sample also contains demonstration credentials in
+[`common/vars/credentials.yml`](common/vars/credentials.yml). Replace those
+values or remove that example before using the repository in a real
+environment.
 
 ## Configure secrets and environment values
 
@@ -51,8 +94,10 @@ password prompt or with the vault password mechanism used by your environment:
 ansible-playbook --ask-vault-pass -i localhost, local.yml
 ```
 
-Update [`vars/main.yml`](vars/main.yml) with the AAP URL, configuration-as-code
-repository URL, and any environment-specific values. Update
+Update [`vars/main.yml`](vars/main.yml) with the platform gateway URL,
+configuration-as-code repository URL, and any environment-specific values. Set
+`aap_validate_certs: true` in production when your gateway uses a certificate
+that is trusted by the execution environment. Update
 [`automation_hub/vars/main.yml`](automation_hub/vars/main.yml) if the Hub
 repositories or collection requirements differ from the example.
 

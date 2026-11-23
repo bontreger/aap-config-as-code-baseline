@@ -1,7 +1,9 @@
 ---
 # NOTE: Check vars/vault.yml for other variables that need to be set.
 aap_validate_certs: false
-automation_hub_url: "https://automation-hub.example.com"
+# AAP 2.7+ platform gateway URL. Do not use a direct controller or hub
+# component hostname; AAP 2.7 routes API access through the gateway.
+automation_hub_url: "https://gateway.example.com"
 aap_configuration_working_dir: "."
 # Username and password for Git for the Configuration as Code project
 scm_username: "example_user"
@@ -46,10 +48,10 @@ controller_job_templates:
   - name: "Config As Code Job Template"
     description: "Job Template for Configuration as Code"
     organization: "Default"
-    inventory: "Demo Inventory"
+    inventory: "Example Inventory"
     project: "Config As Code Project"
     playbook: "site.yml"
-    credential: "Demo Credential"
+    credential: "Example Credential"
     survey: 
       name: "Config As Code Survey"
       description: "Use cases to apply to the Ansible Automation Platform configuration"
