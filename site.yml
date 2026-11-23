@@ -1,0 +1,12 @@
+---
+- name: Deploy AAP Infrastructure Configuration
+  ansible.builtin.include_tasks:
+    file: common/dispatch.yml
+  tags:
+    - common
+
+- name: Deploy Use Case 1 Configuration
+  ansible.builtin.include_tasks:
+    file: use_case_1/dispatch.yml
+  tags:
+    - use_case_1

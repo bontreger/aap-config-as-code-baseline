@@ -1,0 +1,23 @@
+---
+# This playbook is designed to be run locally, setting up the necessary configuration in order to run the configuration as code playbooks from Ansible Automation Platform
+# It is our solution to the chicken and egg problem of needing to have the configuration as code playbooks already deployed in order to deploy them.
+- name: Deploy AAP Infrastructure Configuration
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - vars/main.yml
+    - vars/vault.yml
+  tasks:
+
+# The platform automation hub must be populated first
+    - name: Populate the automation hub configuration to pull content locally from Red Hat Upstream
+      ansible.builtin.include_role:
+        name: infra.aap_configuration.hub_collection_remote
+
+    - name: Create local ansible.cfg file
+      ansible.builtin.include_role:
+        name: infra.aap_configuration.ansible_config
+
+    - name: Apply the configuration as code project
+      ansible.builtin.include_role:
+        name: infra.aap_configuration.dispatch

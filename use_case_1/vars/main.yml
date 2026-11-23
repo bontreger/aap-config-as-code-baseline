@@ -1,0 +1,9 @@
+---
+controller_job_templates:
+  - name: "Example Job Template"
+    description: "Example Job Template for Ansible Automation Platform"
+    organization: "Default"
+    inventory: "Example Inventory"
+    project: "Example Project"
+    playbook: "example_playbook.yml"
+    credential: "Example Credential"

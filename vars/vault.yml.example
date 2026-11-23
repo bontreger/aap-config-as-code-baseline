@@ -1,0 +1,8 @@
+# This token is created in Ansible Automation Platform
+vault_aap_token: "REPLACE_ME"
+
+# This token is retrieved from console.redhat.com
+vault_rh_token: "REPLACE_ME"
+
+# This is the password for source control for the configuration project
+vault_scm_password: "REPLACE_ME"

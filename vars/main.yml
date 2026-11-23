@@ -1,0 +1,65 @@
+---
+# NOTE: Check vars/vault.yml for other variables that need to be set.
+aap_validate_certs: false
+automation_hub_url: "https://automation-hub.example.com"
+aap_configuration_working_dir: "."
+# Username and password for Git for the Configuration as Code project
+scm_username: "example_user"
+scm_password: "{{ vault_scm_password }}"
+config_as_code_scm_url: "https://github.com/example/config-as-code.git"
+
+
+ansible_config_list:
+  - header: galaxy
+    keypairs:
+      - key: server_list
+        value: automation_hub_validated, automation_hub_certified, community
+      - key: ignore_certs
+        value: "{{ not (aap_validate_certs | bool) | default(true) }}"
+automation_hub_list:
+  - name: automation_hub_validated
+    url: "{{ automation_hub_url }}"
+    token: "{{ vault_aap_token }}"
+  - name: automation_hub_certified
+    url: "{{ automation_hub_url }}"
+    token: "{{ vault_aap_token }}"
+  - name: community
+    url: "https://galaxy.ansible.com/"
+
+controller_projects:
+  - name: "Config As Code Project"
+    description: "Configuration Project for Ansible Automation Platform"
+    organization: "Default"
+    scm_type: "git"
+    scm_url: "{{ config_as_code_scm_url }}"
+    scm_credential: "Configuration SCM Credential"
+
+controller_credentials:
+  - name: "Configuration SCM Credential"
+    description: "Credential for Configuration Project SCM"
+    credential_type: "Source Control"
+    inputs:
+      username: "{{ scm_username }}"
+      password: "{{ scm_password }}"
+
+controller_job_templates:
+  - name: "Config As Code Job Template"
+    description: "Job Template for Configuration as Code"
+    organization: "Default"
+    inventory: "Demo Inventory"
+    project: "Config As Code Project"
+    playbook: "site.yml"
+    credential: "Demo Credential"
+    survey: 
+      name: "Config As Code Survey"
+      description: "Use cases to apply to the Ansible Automation Platform configuration"
+      spec:
+        - question_name: "Use Case Tags to Apply"
+          question_description: "Select the tags for the use cases you want to apply to the Ansible Automation Platform configuration"
+          required: true
+          type: "multiplechoice"
+          choices:
+            - "common"
+            - "use_case_1"
+            - "use_case_2"
+            - "use_case_3"

@@ -1,0 +1,8 @@
+---
+controller_projects:
+  - name: "Example Project"
+    description: "Example Project for Ansible Automation Platform"
+    organization: "Default"
+    scm_type: "git"
+    scm_url: "https://github.com/example/repo.git"
+    scm_credential: "Example SCM Credential"
